@@ -21,6 +21,7 @@ import React, {useState, useEffect} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
+import axios from 'axios';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -75,14 +76,13 @@ const ProfileVendor = ({navigation}) => {
   const [phone_number, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [about, setAbout] = useState('');
-
   async function updateName() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
     }, 2000);
     const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {name, email, location, phone_number, about, jwt};
+    let item = {location, about, jwt};
     console.warn(item);
 
     fetch('https://hiousapp.com/api/vendor_auth/update_vendor.php', {
@@ -102,6 +102,7 @@ const ProfileVendor = ({navigation}) => {
             Alert.alert('Warning', result.message);
             return;
           } else {
+            Alert.alert('Success', result.message);
             console.log(result.message);
           }
         });
@@ -110,36 +111,6 @@ const ProfileVendor = ({navigation}) => {
         console.log(error);
       });
   }
-
-  const [image, setImage] = useState(
-    'https://api.adorable.io/avatars/80/abott@adorable.png',
-  );
-
-  const takePhotoFromCamera = () => {
-    ImagePicker.openCamera({
-      compressImageMaxWidth: 300,
-      compressImageMaxHeight: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
-    });
-  };
-
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
-    });
-  };
 
   return (
     <KeyboardAvoidingView
@@ -157,48 +128,17 @@ const ProfileVendor = ({navigation}) => {
           contentContainerStyle={{
             justifyContent: 'center',
             alignItems: 'center',
-          }}>
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              enabled={true}
+              size="default"
+              color="#3E90FC"
+            />
+          }>
           <View style={styles.modalView}>
-            <TouchableOpacity
-              style={{
-                justifyContent: 'center',
-                display: 'flex',
-                flexDirection: 'row',
-                paddingTop: 30,
-              }}
-              onPress={choosePhotoFromLibrary}>
-              <ImageBackground
-                source={{
-                  uri: image,
-                }}
-                style={{height: 100, width: 100}}
-                imageStyle={{
-                  borderRadius: 15,
-                  borderWidth: 1,
-                  borderColor: '#fff',
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Icon
-                    name="camera"
-                    size={35}
-                    color="#fff"
-                    style={{
-                      opacity: 0.7,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: '#fff',
-                      borderRadius: 10,
-                    }}
-                  />
-                </View>
-              </ImageBackground>
-            </TouchableOpacity>
             <Pressable
               style={{
                 display: 'flex',
@@ -223,8 +163,9 @@ const ProfileVendor = ({navigation}) => {
               }}
               placeholder={data.name}
               placeholderTextColor={'#000'}
-              value={data.name}
+              defaultValue={data.name}
               onChangeText={text => setName(text)}
+              editable={false}
             />
 
             <Pressable
@@ -250,9 +191,10 @@ const ProfileVendor = ({navigation}) => {
                 width: 260,
               }}
               placeholder={data.email}
+              defaultValue={data.email}
               placeholderTextColor={'#000'}
-              value={data.email}
               onChangeText={text => setEmail(text)}
+              editable={false}
             />
             <Text style={styles.modalText}>Phone number</Text>
             <TextInput
@@ -266,8 +208,9 @@ const ProfileVendor = ({navigation}) => {
               }}
               placeholder={data.phone_number}
               placeholderTextColor={'#000'}
-              value={data.phone_number}
+              defaultValue={data.phone_number}
               onChangeText={text => setPhoneNumber(text)}
+              editable={false}
             />
             <Text style={styles.modalText}>Address</Text>
             <TextInput
@@ -352,27 +295,6 @@ const ProfileVendor = ({navigation}) => {
         </View>
         <View>
           <View>
-            <View
-              style={{
-                justifyContent: 'center',
-                display: 'flex',
-                flexDirection: 'row',
-                paddingTop: 30,
-              }}>
-              <Image
-                // source={require('../assets/user.png')}
-                source={{
-                  uri: image,
-                }}
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 20,
-                  borderColor: '#7A86C0',
-                  borderWidth: 2,
-                }}
-              />
-            </View>
             <View style={{paddingTop: 30}}>
               <View
                 style={{

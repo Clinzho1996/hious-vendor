@@ -11,26 +11,20 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  ImageBackground,
   RefreshControl,
   TextInput,
   FlatList,
   KeyboardAvoidingView,
-  Platform,
+  ActivityIndicator,
+  Pressable,
+  ImageBackground,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {api} from './constants';
-import axios from 'axios';
-import {Product} from './Product';
-import {getProducts} from './ProductService';
-import FormData from 'form-data';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import * as ImagePicker from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 const wait = timeout => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -38,11 +32,11 @@ const wait = timeout => {
 
 const StoreDetailsVendor = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalVisibleTwo, setModalVisibleTwo] = useState(false);
-  const [modalVisibleThree, setModalVisibleThree] = useState(false);
-  const [modalVisibleFour, setModalVisibleFour] = useState(false);
-  const [liked, setLiked] = useState(false);
   const [visible, setVisible] = React.useState(false);
+  const [image, setImage] = useState();
+  const [imageTwo, setImageTwo] = useState();
+  const [imageThree, setImageThree] = useState();
+  const [imageFour, setImageFour] = useState();
 
   const openMenu = () => setVisible(true);
 
@@ -55,8 +49,69 @@ const StoreDetailsVendor = ({navigation}) => {
   }, []);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [product_name, setProductName] = useState('');
+  const [product_price, setProductPrice] = useState('');
+  const [product_category, setProductCategory] = useState('');
+  const [product_id, setProductId] = useState('');
+  const [product_pic, setProductPic] = useState('');
+  const [description, setProductDescription] = useState('');
+  const [modalVisibleEleven, setModalVisibleEleven] = useState(false);
 
-  async function getData() {
+  const [modalVisibleTwelve, setModalVisibleTwelve] = useState(false);
+
+  const showModal = () => {
+    setModalVisible(true);
+  };
+
+  const showModalTwo = () => {
+    setModalVisibleEleven(true);
+  };
+
+  const showModalThree = () => {
+    setModalVisibleTwelve(true);
+  };
+
+  const openPicker = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+    }).then(image => {
+      setImage(image.path);
+    });
+  };
+
+  const openPickerTwo = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+    }).then(imageTwo => {
+      setImageTwo(imageTwo.path);
+    });
+  };
+
+  const openPickerThree = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+    }).then(imageThree => {
+      setImageThree(imageThree.path);
+    });
+  };
+
+  const openPickerFour = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+    }).then(imageFour => {
+      setImageFour(imageFour.path);
+    });
+  };
+
+  async function getUserData() {
     const jwt = await AsyncStorage.getItem('AccessToken');
     let item = {jwt};
     console.warn(item);
@@ -79,251 +134,270 @@ const StoreDetailsVendor = ({navigation}) => {
   }
 
   useEffect(() => {
-    getData();
+    getUserData();
   }, []);
 
-  const [image, setImage] = useState(
-    'https://api.adorable.io/avatars/80/abott@adorable.png',
-  );
-  const [imageTwo, setImageTwo] = useState(
-    'https://api.adorable.io/avatars/80/abott@adorable.png',
-  );
-  const [imageThree, setImageThree] = useState(
-    'https://api.adorable.io/avatars/80/abott@adorable.png',
-  );
-  const [imageFour, setImageFour] = useState(
-    'https://api.adorable.io/avatars/80/abott@adorable.png',
-  );
-
-  const takePhotoFromCamera = () => {
-    ImagePicker.openCamera({
-      compressImageMaxWidth: 300,
-      compressImageMaxHeight: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-    });
-  };
-
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.launchImageLibrary({
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 300,
-      maxWidth: 300,
-      compressImageQuality: 0.7,
-    }).then(image => {
-      console.log(image.assets[0].uri);
-      setImage(image.assets[0].uri);
-    });
-  };
-  const choosePhotoFromLibraryTwo = () => {
-    ImagePicker.launchImageLibrary({
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 300,
-      maxWidth: 300,
-    }).then(imageTwo => {
-      console.log(imageTwo.assets[0].uri);
-      setImageTwo(imageTwo.assets[0].uri);
-    });
-  };
-  const choosePhotoFromLibraryThree = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then(imageThree => {
-      console.log(imageThree);
-      setImageThree(imageThree.path);
-    });
-  };
-  const choosePhotoFromLibraryFour = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-      compressImageQuality: 0.7,
-    }).then(imageFour => {
-      console.log(imageFour);
-      setImageFour(imageFour.path);
-    });
-  };
-
-  const showModal = () => {
-    setModalVisible(true);
-  };
-
-  const showModalTwo = () => {
-    setModalVisibleTwo(true);
-  };
-
-  const showModalThree = () => {
-    setModalVisibleThree(true);
-  };
-
-  const showModalFour = () => {
-    setModalVisibleFour(true);
-  };
-
-  async function updateVendorPic1() {
+  async function updateName() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-    const formData = new FormData();
-    data.append('image', {
-      name: 'some_name', // also, won't work without this. A name is required
-      height: image.height,
-      width: image.width,
-      type: 'multipart/form-data', // <-- this part here
-      uri:
-        Platform.OS === 'android' ? image.uri : image.uri.replace('file:/', ''),
-    });
-    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
-    console.log('form data', image);
-    console.warn(formData);
+    let item = {product_id, product_name, product_price, product_category};
+    console.warn(item);
 
-    fetch(
-      'https://hiousapp.com/api/vendor_auth/update_vendor_pic1.php',
-      formData,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
-    )
-      .then(result => {
-        if (result.status == 200) {
-          console.log(result.message);
-        } else {
-          console.log(result.message);
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }
-
-  async function updateVendorPic2() {
-    var data = new FormData();
-
-    data.append('files', {
-      uri: imageTwo.uri,
-      name: 'image.jpg',
-      type: 'image/jpeg',
-    });
-
-    var config = {
-      method: 'post',
-      url: 'https://hiousapp.com/api/vendor_auth/update_vendor_pic2.php',
+    fetch('https://hiousapp.com/api/vendor_auth/update_product.php', {
+      method: 'PUT',
+      body: JSON.stringify(item),
       headers: {
+        'Content-Type': 'application/json',
         Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
       },
-      data: data,
-    };
-
-    axios(config)
-      .then(response => {
-        console.log(JSON.stringify(response.data));
+    })
+      .then(result => {
+        let statusCode = result.status,
+          success = result.ok;
+        result.json().then(result => {
+          if (!success) {
+            console.log(result.message);
+            Alert.alert('Warning', result.message);
+            return;
+          } else {
+            Alert.alert('Success', result.message);
+            console.log(result.message);
+          }
+        });
       })
       .catch(error => {
         console.log(error);
       });
   }
 
-  async function updateVendorPic3() {
+  async function deleteProduct() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-    const formData = new FormData();
-    formData.append('file', imageThree);
-    console.log('form data', imageThree);
-    const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {imageThree, jwt};
-    console.warn(item);
+    let item = {product_id};
 
+    fetch('https://hiousapp.com/api/vendor_auth/delete_product.php', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(item),
+    })
+      .then(result => {
+        let statusCode = result.status,
+          success = result.ok;
+        result.json().then(result => {
+          if (!success) {
+            console.log(result.message);
+            Alert.alert('Warning', result.message);
+            return;
+          } else {
+            Alert.alert('Success', result.message);
+            console.log(result.message);
+          }
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  async function uploadAvatar() {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: image,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
+    fetch('https://hiousapp.com/api/vendor_auth/update_vendor_pic1.php', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(imagedata => {
+        setImage(imagedata.image);
+        console.log(imagedata);
+        Alert.alert('Success', imagedata.message);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  async function uploadAvatarTwo() {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: imageTwo,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
+    fetch('https://hiousapp.com/api/vendor_auth/update_vendor_pic2.php', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(imagedata => {
+        setImageTwo(imagedata.imageTwo);
+        console.log(imagedata);
+        Alert.alert('Success', imagedata.message);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  async function uploadAvatarThree() {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: imageThree,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
     fetch('https://hiousapp.com/api/vendor_auth/update_vendor_pic3.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      body: formData,
     })
-      .then(result => {
-        if (result.status == 200) {
-          console.log(result.message);
-        } else {
-          console.log(result.message);
-        }
+      .then(response => response.json())
+      .then(imagedata => {
+        setImageThree(imagedata.imageThree);
+        console.log(imagedata);
+        Alert.alert('Success', imagedata.message);
       })
       .catch(error => {
         console.error(error);
       });
   }
 
-  async function updateVendorPic4() {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+  async function uploadAvatarFour() {
     const formData = new FormData();
-    formData.append('file', imageFour[0]);
-    console.log('form data', imageFour);
-    const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {imageFour, jwt};
-    console.warn(item);
-
-    fetch('https://hiousapp.com/api/vendor_auth/update_vendor_pic4.php', item, {
+    formData.append('image', {
+      uri: imageFour,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
+    fetch('https://hiousapp.com/api/vendor_auth/update_vendor_pic4.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      body: formData,
     })
-      .then(result => {
-        if (result.status == 200) {
-          console.log(result.message);
-        } else {
-          console.log(result.message);
-        }
+      .then(response => response.json())
+      .then(imagedata => {
+        setImageFour(imagedata.imageFour);
+        console.log(imagedata);
+        Alert.alert('Success', imagedata.message);
       })
       .catch(error => {
         console.error(error);
       });
-  }
-
-  function renderProduct({item: product}) {
-    return (
-      <Product
-        {...product}
-        onPress={() => {
-          navigation.navigate('ProductDetails', {
-            productId: product.id,
-          });
-        }}
-      />
-    );
   }
 
   const [products, setProducts] = useState([]);
 
+  async function getData() {
+    const jwt = await AsyncStorage.getItem('AccessToken');
+    let item = {jwt};
+    console.warn(item);
+
+    return fetch('https://hiousapp.com/api/vendor_auth/fetch_product.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(item),
+    })
+      .then(response => response.json())
+      .then(json => setProducts(json.data))
+      .catch(error => console.error(error))
+      .finally(() => setLoading(false));
+  }
+
   useEffect(() => {
-    setProducts(getProducts());
-  });
+    getData();
+  }, []);
+
+  const Wrapper = () => {
+    if (!products || !products.length) return null;
+    // Limit the number of items displayed in the list
+    const limitedProducts = products.slice(0, 4);
+    return (
+      <FlatList
+        data={limitedProducts}
+        renderItem={({item}) => (
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: 20,
+              width: windowWidth - 60,
+            }}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                alignItems: 'center',
+              }}>
+              <Text style={{fontSize: 16, color: '#000'}}>
+                {item.product_id}
+              </Text>
+              <Text
+                style={{fontSize: 16, color: '#000', paddingHorizontal: 10}}>
+                {item.product_name}
+              </Text>
+              <Text style={{fontSize: 14, color: '#c4c4c4'}}>
+                {'\u20A6'} {item.product_price}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#7A86C0',
+                  padding: 8,
+                  borderRadius: 6,
+                  marginRight: 10,
+                  marginLeft: 20,
+                }}
+                onPress={showModalTwo}>
+                <Icon name="pencil-outline" color={'#fff'} size={20} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{backgroundColor: 'red', padding: 8, borderRadius: 6}}
+                onPress={showModalThree}>
+                <Icon name="trash" color={'#fff'} size={20} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+        keyExtractor={item => item.id}
+      />
+    );
+  };
 
   return (
-    <KeyboardAvoidingView>
+    <View>
       <ScrollView
+        horizontal={false}
         contentContainerStyle={styles.container}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
+            enabled={true}
             size="default"
             color="#3E90FC"
           />
@@ -331,176 +405,220 @@ const StoreDetailsVendor = ({navigation}) => {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={modalVisible}
+          visible={modalVisibleEleven}
           onRequestClose={() => {
-            setModalVisible(!modalVisible);
+            setModalVisibleEleven(!modalVisibleEleven);
           }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <TouchableOpacity
+          <ScrollView
+            style={styles.centeredView}
+            contentContainerStyle={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            {loading ? (
+              <ActivityIndicator
+                size="large"
+                color={'blue'}
                 style={{
-                  justifyContent: 'center',
-                  display: 'flex',
+                  alignItems: 'center',
                   flexDirection: 'row',
-                  padding: 20,
+                  justifyContent: 'center',
                 }}
-                onPress={choosePhotoFromLibrary}>
-                <ImageBackground
-                  source={{
-                    uri: image,
-                  }}
-                  style={{
-                    height: 100,
-                    width: 100,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    borderRadius: 15,
-                  }}
-                  imageStyle={{
-                    borderRadius: 15,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon
-                      name="camera"
-                      size={35}
-                      color="#fff"
-                      style={{
-                        opacity: 0.7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 1,
-                        borderColor: '#fff',
-                        borderRadius: 10,
-                      }}
-                    />
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TextInput
-                style={{
-                  backgroundColor: '#727FBE',
-                  padding: 10,
-                  borderRadius: 6,
-                  color: '#fff',
-                  fontSize: 16,
-                  width: 260,
-                  marginBottom: 20,
-                }}
-                placeholder={data.name}
-                placeholderTextColor={'#f7f7f7'}
-                value={image}
-                onChangeText={text => setImage(text)}
               />
-              <View style={styles.close}>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(!modalVisible)}>
-                  <Text
-                    style={{color: '#B4BDE4', fontSize: 16, fontWeight: '400'}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                    navigation.navigate('StoreDetailsVendor');
-                    updateVendorPic1();
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontWeight: '500',
-                      marginLeft: 20,
+            ) : (
+              <View style={styles.modalView}>
+                <Pressable
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    position: 'absolute',
+                    right: 20,
+                    top: 20,
+                  }}
+                  onPress={() => setModalVisibleEleven(!modalVisibleEleven)}>
+                  <Icon name="close" size={30} color={'#fff'} />
+                </Pressable>
+                <Pressable
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    position: 'absolute',
+                    right: 20,
+                    top: 20,
+                  }}
+                  onPress={() => setModalVisibleEleven(!modalVisibleEleven)}>
+                  <Icon name="close" size={30} color={'#fff'} />
+                </Pressable>
+                <Text style={styles.modalText}>Product ID</Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    padding: 10,
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 260,
+                  }}
+                  placeholder={'Enter Product ID'}
+                  placeholderTextColor={'#c4c4c4'}
+                  value={product_id}
+                  onChangeText={text => setProductId(text)}
+                />
+                <Text style={styles.modalText}>Product Name</Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    padding: 10,
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 260,
+                  }}
+                  placeholder={'Enter Product Name'}
+                  placeholderTextColor={'#c4c4c4'}
+                  value={product_name}
+                  onChangeText={text => setProductName(text)}
+                />
+                <Text style={styles.modalText}>Product Price</Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    padding: 10,
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 260,
+                  }}
+                  placeholder={'Update Product Price'}
+                  placeholderTextColor={'#c4c4c4'}
+                  value={product_price}
+                  multiline={true}
+                  onChangeText={text => setProductPrice(text)}
+                />
+                <Text style={styles.modalText}>Product Category</Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    padding: 10,
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 260,
+                    marginBottom: 50,
+                  }}
+                  multiline={false}
+                  placeholder={'Enter Product Category'}
+                  placeholderTextColor={'#f7f7f7'}
+                  value={product_category}
+                  onChangeText={text => setProductCategory(text)}
+                />
+                <View style={styles.close}>
+                  <TouchableOpacity
+                    onPress={() => setModalVisibleTwelve(!modalVisibleTwelve)}>
+                    <Text
+                      style={{
+                        color: '#B4BDE4',
+                        fontSize: 16,
+                        fontWeight: '400',
+                      }}>
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisibleTwelve(!modalVisibleTwelve);
+                      navigation.navigate('VendorProducts');
+                      updateName();
                     }}>
-                    Save
-                  </Text>
-                </TouchableOpacity>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        fontWeight: '500',
+                        marginLeft: 20,
+                      }}>
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </View>
+            )}
+          </ScrollView>
         </Modal>
         <Modal
           animationType="slide"
           transparent={true}
-          visible={modalVisibleTwo}
+          visible={modalVisibleTwelve}
           onRequestClose={() => {
-            setModalVisibleTwo(!modalVisibleTwo);
+            setModalVisibleTwelve(!modalVisibleTwelve);
           }}>
-          <View style={styles.centeredView}>
+          <ScrollView
+            style={styles.centeredView}
+            contentContainerStyle={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <View style={styles.modalView}>
-              <TouchableOpacity
+              <Pressable
                 style={{
-                  justifyContent: 'center',
                   display: 'flex',
                   flexDirection: 'row',
-                  padding: 20,
+                  alignItems: 'flex-end',
+                  position: 'absolute',
+                  right: 20,
+                  top: 20,
                 }}
-                onPress={choosePhotoFromLibraryTwo}>
-                <ImageBackground
-                  source={{
-                    uri: imageTwo,
-                  }}
-                  style={{
-                    height: 100,
-                    width: 100,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    borderRadius: 15,
-                  }}
-                  imageStyle={{
-                    borderRadius: 15,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon
-                      name="camera"
-                      size={35}
-                      color="#fff"
-                      style={{
-                        opacity: 0.7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 1,
-                        borderColor: '#fff',
-                        borderRadius: 10,
-                      }}
-                    />
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TextInput
+                onPress={() => setModalVisibleTwelve(!modalVisibleTwelve)}>
+                <Icon name="close" size={30} color={'#fff'} />
+              </Pressable>
+              <Pressable
                 style={{
-                  backgroundColor: '#727FBE',
-                  padding: 10,
-                  borderRadius: 6,
-                  color: '#fff',
-                  fontSize: 16,
-                  width: 260,
-                  marginBottom: 20,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'flex-end',
+                  position: 'absolute',
+                  right: 20,
+                  top: 20,
                 }}
-                placeholder={data.name}
-                placeholderTextColor={'#f7f7f7'}
-                value={imageTwo}
-                onChangeText={text => setImageTwo(text)}
-              />
+                onPress={() => setModalVisibleTwelve(!modalVisibleTwelve)}>
+                <Icon name="close" size={30} color={'#fff'} />
+              </Pressable>
+              <Text style={styles.modalText}>
+                Enter product id to confirm deletion of item
+              </Text>
+              {loading ? (
+                <ActivityIndicator
+                  size="large"
+                  color={'blue'}
+                  style={{
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}
+                />
+              ) : (
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    padding: 10,
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 260,
+                    marginBottom: 50,
+                  }}
+                  multiline={false}
+                  placeholder={'Product id'}
+                  placeholderTextColor={'#f7f7f7'}
+                  value={product_id}
+                  onChangeText={text => setProductId(text)}
+                />
+              )}
               <View style={styles.close}>
                 <TouchableOpacity
-                  onPress={() => setModalVisibleTwo(!modalVisibleTwo)}>
+                  onPress={() => setModalVisibleTwelve(!modalVisibleTwelve)}>
                   <Text
                     style={{color: '#B4BDE4', fontSize: 16, fontWeight: '400'}}>
                     Cancel
@@ -508,10 +626,9 @@ const StoreDetailsVendor = ({navigation}) => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    setModalVisibleTwo(!modalVisibleTwo);
-                    Alert.alert('Success', 'Image updated successfully');
-                    navigation.navigate('StoreDetailsVendor');
-                    updateVendorPic2();
+                    setModalVisibleTwelve(!modalVisibleTwelve);
+                    navigation.navigate('VendorProducts');
+                    deleteProduct();
                   }}>
                   <Text
                     style={{
@@ -520,212 +637,12 @@ const StoreDetailsVendor = ({navigation}) => {
                       fontWeight: '500',
                       marginLeft: 20,
                     }}>
-                    Save
+                    Delete
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
-        </Modal>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisibleThree}
-          onRequestClose={() => {
-            setModalVisibleThree(!modalVisibleThree);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <TouchableOpacity
-                style={{
-                  justifyContent: 'center',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  padding: 20,
-                }}
-                onPress={choosePhotoFromLibraryThree}>
-                <ImageBackground
-                  source={{
-                    uri: imageThree,
-                  }}
-                  style={{
-                    height: 100,
-                    width: 100,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    borderRadius: 15,
-                  }}
-                  imageStyle={{
-                    borderRadius: 15,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon
-                      name="camera"
-                      size={35}
-                      color="#fff"
-                      style={{
-                        opacity: 0.7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 1,
-                        borderColor: '#fff',
-                        borderRadius: 10,
-                      }}
-                    />
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TextInput
-                style={{
-                  backgroundColor: '#727FBE',
-                  padding: 10,
-                  borderRadius: 6,
-                  color: '#fff',
-                  fontSize: 16,
-                  width: 260,
-                  marginBottom: 20,
-                }}
-                placeholder={data.name}
-                placeholderTextColor={'#f7f7f7'}
-                value={imageThree}
-                onChangeText={text => setImageThree(text)}
-              />
-              <View style={styles.close}>
-                <TouchableOpacity
-                  onPress={() => setModalVisibleThree(!modalVisibleThree)}>
-                  <Text
-                    style={{color: '#B4BDE4', fontSize: 16, fontWeight: '400'}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setModalVisibleThree(!modalVisibleThree);
-                    Alert.alert('Success', 'Image updated successfully');
-                    navigation.navigate('StoreDetailsVendor');
-                    updateVendorPic3();
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontWeight: '500',
-                      marginLeft: 20,
-                    }}>
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisibleFour}
-          onRequestClose={() => {
-            setModalVisibleFour(!modalVisibleFour);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <TouchableOpacity
-                style={{
-                  justifyContent: 'center',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  padding: 20,
-                }}
-                onPress={choosePhotoFromLibraryFour}>
-                <ImageBackground
-                  source={{
-                    uri: imageFour,
-                  }}
-                  style={{
-                    height: 100,
-                    width: 100,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    borderRadius: 15,
-                  }}
-                  imageStyle={{
-                    borderRadius: 15,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon
-                      name="camera"
-                      size={35}
-                      color="#fff"
-                      style={{
-                        opacity: 0.7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 1,
-                        borderColor: '#fff',
-                        borderRadius: 10,
-                      }}
-                    />
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TextInput
-                style={{
-                  backgroundColor: '#727FBE',
-                  padding: 10,
-                  borderRadius: 6,
-                  color: '#fff',
-                  fontSize: 16,
-                  width: 260,
-                  marginBottom: 20,
-                }}
-                placeholder={data.name}
-                placeholderTextColor={'#f7f7f7'}
-                value={imageFour}
-                onChangeText={text => setImageFour(text)}
-              />
-              <View style={styles.close}>
-                <TouchableOpacity
-                  onPress={() => setModalVisibleFour(!modalVisibleFour)}>
-                  <Text
-                    style={{color: '#B4BDE4', fontSize: 16, fontWeight: '400'}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setModalVisibleFour(!modalVisibleFour);
-                    Alert.alert('Success', 'Image updated successfully');
-                    navigation.navigate('StoreDetailsVendor');
-                    updateVendorPic4();
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontWeight: '500',
-                      marginLeft: 20,
-                    }}>
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+          </ScrollView>
         </Modal>
         <View
           style={{
@@ -748,125 +665,298 @@ const StoreDetailsVendor = ({navigation}) => {
           </View>
         </View>
         <View style={styles.innerDetails}>
-          <View
-            style={{
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: '#c4c4c4',
-            }}>
-            {loading ? (
-              <Text
-                style={{
-                  fontSize: 16,
-                  paddingLeft: 10,
-                  fontWeight: '400',
-                  color: '#5C5C5C',
-                }}>
-                Loading
-              </Text>
-            ) : (
-              <Image
-                source={{
-                  uri: data.pic_1,
-                }}
-                style={{
-                  width: windowWidth - 60,
-                  height: 250,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: '#c4c4c4',
-                }}
-              />
-            )}
-            <TouchableOpacity style={styles.heart} onPress={showModal}>
-              <Icon
-                name={liked ? 'pencil-outline' : 'pencil-outline'}
-                size={30}
-                color={liked ? '#c4c4c4' : '#c4c4c4'}
-              />
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginTop: 10,
-            }}>
-            <View
-              style={{
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: '#c4c4c4',
-              }}>
-              <Image
-                source={{uri: data.pic_2}}
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: '#c4c4c4',
-                }}
-              />
-              <TouchableOpacity style={styles.heart} onPress={showModalTwo}>
-                <Icon
-                  name={liked ? 'pencil-outline' : 'pencil-outline'}
-                  size={30}
-                  color={liked ? '#c4c4c4' : '#c4c4c4'}
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: '#c4c4c4',
-              }}>
-              <Image
-                source={{uri: data.pic_3}}
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: '#c4c4c4',
-                }}
-              />
-              <TouchableOpacity style={styles.heart} onPress={showModalThree}>
-                <Icon
-                  name={liked ? 'pencil-outline' : 'pencil-outline'}
-                  size={30}
-                  color={liked ? '#c4c4c4' : '#c4c4c4'}
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: '#c4c4c4',
-              }}>
-              <Image
-                source={{uri: data.pic_4}}
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: '#c4c4c4',
-                }}
-              />
-              <TouchableOpacity style={styles.heart} onPress={showModalFour}>
-                <Icon
-                  name={liked ? 'pencil-outline' : 'pencil-outline'}
-                  size={30}
-                  color={liked ? '#c4c4c4' : '#c4c4c4'}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
           <View>
+            <View style={{alignItems: 'center', display: 'flex'}}>
+              {loading ? (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    fontWeight: '400',
+                    color: '#5C5C5C',
+                  }}>
+                  Loading
+                </Text>
+              ) : (
+                <ImageBackground
+                  source={{
+                    uri: image || data.pic_1,
+                  }}
+                  style={{
+                    width: 300,
+                    height: 200,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  imageStyle={{
+                    width: 330,
+                    height: 200,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  resizeMode={'cover'}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 0,
+                      paddingHorizontal: 10,
+                    }}>
+                    <TouchableOpacity
+                      onPress={openPicker}
+                      style={{
+                        marginRight: 10,
+                        backgroundColor: '#7A86C0',
+                        padding: 10,
+                        borderRadius: 10,
+                      }}>
+                      <Icon name="pencil-outline" size={30} color={'#fff'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={uploadAvatar}
+                      style={{
+                        marginRight: 20,
+                        backgroundColor: '#ffa500',
+                        padding: 10,
+                        borderRadius: 10,
+                      }}>
+                      <Icon
+                        name="cloud-upload-outline"
+                        size={30}
+                        color={'#fff'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              )}
+            </View>
+            <View
+              style={{
+                alignItems: 'center',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                marginTop: 20,
+              }}>
+              {loading ? (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    fontWeight: '400',
+                    color: '#5C5C5C',
+                  }}>
+                  Loading
+                </Text>
+              ) : (
+                <ImageBackground
+                  source={{
+                    uri: imageTwo || data.pic_2,
+                  }}
+                  style={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  imageStyle={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  resizeMode={'cover'}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 0,
+                      paddingHorizontal: 0,
+                    }}>
+                    <TouchableOpacity
+                      onPress={openPickerTwo}
+                      style={{
+                        marginRight: 10,
+                        backgroundColor: '#7A86C0',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon name="pencil-outline" size={20} color={'#fff'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={uploadAvatarTwo}
+                      style={{
+                        marginRight: 20,
+                        backgroundColor: '#ffa500',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon
+                        name="cloud-upload-outline"
+                        size={20}
+                        color={'#fff'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              )}
+              {loading ? (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    fontWeight: '400',
+                    color: '#5C5C5C',
+                  }}>
+                  Loading
+                </Text>
+              ) : (
+                <ImageBackground
+                  source={{
+                    uri: imageThree || data.pic_3,
+                  }}
+                  style={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  imageStyle={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  resizeMode={'cover'}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 0,
+                      paddingHorizontal: 0,
+                    }}>
+                    <TouchableOpacity
+                      onPress={openPickerThree}
+                      style={{
+                        marginRight: 10,
+                        backgroundColor: '#7A86C0',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon name="pencil-outline" size={20} color={'#fff'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={uploadAvatarThree}
+                      style={{
+                        marginRight: 20,
+                        backgroundColor: '#ffa500',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon
+                        name="cloud-upload-outline"
+                        size={20}
+                        color={'#fff'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              )}
+              {loading ? (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    fontWeight: '400',
+                    color: '#5C5C5C',
+                  }}>
+                  Loading
+                </Text>
+              ) : (
+                <ImageBackground
+                  source={{
+                    uri: imageFour || data.pic_4,
+                  }}
+                  style={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  imageStyle={{
+                    width: 95,
+                    height: 95,
+                    borderWidth: 1,
+                    borderColor: '#5c5c5c',
+                    margin: 0,
+                    borderRadius: 10,
+                  }}
+                  resizeMode={'cover'}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 0,
+                      paddingHorizontal: 0,
+                    }}>
+                    <TouchableOpacity
+                      onPress={openPickerFour}
+                      style={{
+                        marginRight: 10,
+                        backgroundColor: '#7A86C0',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon name="pencil-outline" size={20} color={'#fff'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={uploadAvatarFour}
+                      style={{
+                        marginRight: 20,
+                        backgroundColor: '#ffa500',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}>
+                      <Icon
+                        name="cloud-upload-outline"
+                        size={20}
+                        color={'#fff'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              )}
+            </View>
             <View
               style={{
                 borderBottomColor: '#97979733',
@@ -959,24 +1049,31 @@ const StoreDetailsVendor = ({navigation}) => {
                 }}>
                 <Text style={styles.titlePhoto}>Products</Text>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('PhotosVendor')}>
+                  onPress={() => navigation.navigate('VendorProducts')}>
                   <Text style={{color: '#5C5C5C'}}>Edit</Text>
                 </TouchableOpacity>
               </View>
-
-              <FlatList
-                style={styles.productsList}
-                contentContainerStyle={styles.productsListContainer}
-                keyExtractor={item => item.id.toString()}
-                data={products}
-                renderItem={renderProduct}
-              />
             </View>
+            <ScrollView horizontal={true}>
+              {loading ? (
+                <ActivityIndicator
+                  size="large"
+                  color={'blue'}
+                  style={{
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}
+                />
+              ) : (
+                <Wrapper />
+              )}
+            </ScrollView>
             <View>
               <TouchableOpacity
                 style={styles.btnPrimary}
                 onPress={() => navigation.navigate('VendorProducts')}>
-                <Text style={styles.reg}>Edit Services</Text>
+                <Text style={styles.reg}>All Products</Text>
               </TouchableOpacity>
             </View>
             <View>
@@ -1040,7 +1137,7 @@ const StoreDetailsVendor = ({navigation}) => {
           </View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -1108,8 +1205,6 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     paddingTop: 50,
@@ -1130,11 +1225,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     width: windowWidth - 60,
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
   buttonOpen: {
     backgroundColor: '#F194FF',
   },
@@ -1149,8 +1239,8 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     marginTop: 30,
-    textAlign: 'center',
-    fontSize: 24,
+    textAlign: 'left',
+    fontSize: 20,
     color: '#fff',
     fontWeight: '600',
   },
@@ -1215,6 +1305,27 @@ const styles = StyleSheet.create({
   productsListContainer: {
     paddingVertical: 8,
     marginHorizontal: 0,
+    borderRadius: 10,
+  },
+  button: {
+    fontSize: 20,
+    color: '#fff',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    backgroundColor: '#7A86C0',
+    borderRadius: 10,
+    marginTop: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    backgroundColor: '#fff',
+    color: 'blue',
+  },
+  selectedImage: {
+    width: 335,
+    height: 200,
+    marginTop: 20,
     borderRadius: 10,
   },
 });

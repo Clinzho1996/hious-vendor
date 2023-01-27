@@ -40,6 +40,7 @@ export function AddProduct({route, navigation}) {
   const [product_price, setProductPrice] = useState('');
   const [product_category, setProductCategory] = useState('');
   const [product_pic, setProductPic] = useState('');
+  const [description, setProductDescription] = useState('');
 
   const cats = [
     {
@@ -72,91 +73,64 @@ export function AddProduct({route, navigation}) {
     'https://api.adorable.io/avatars/80/abott@adorable.png',
   );
 
-  const choosePhotoFromLibrary = () => {
+  const [loading, setLoading] = useState(false);
+
+  const openPicker = () => {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
       cropping: true,
-      compressImageQuality: 0.7,
     }).then(image => {
-      console.log('selected Image', image);
-      setProductPic(image.path);
+      setImage(image.path);
     });
-  };
-
-  async function updateVendorPic1() {
-    setLoadingTwo(true);
-    setTimeout(() => {
-      setLoadingTwo(false);
-    }, 2000);
-    const imageData = new FormData();
-    imageData.append({
-      uri: product_pic,
-      name: 'image.jpg',
-      type: 'image/jpg',
-    });
-    console.log('form data', imageData);
-    const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {imageData, jwt};
-    console.warn(item);
-
-    axios({
-      method: 'post',
-      url: api,
-      data: imageData,
-    })
-      .then(function (response) {
-        console.log('image upload successfully', response.data);
-      })
-      .then(error => {
-        console.log('error riased', error);
-      });
-  }
-
-  const showModal = () => {
-    setModalVisible(true);
   };
 
   async function createProduct() {
-    setLoadingTwo(true);
+    setLoading(true);
     setTimeout(() => {
-      setLoadingTwo(false);
+      setLoading(false);
     }, 2000);
-    const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {
-      product_name,
-      product_price,
-      product_category,
-      product_pic,
-      jwt,
-    };
-    console.warn(item);
+    const formData = new FormData();
+    formData.append('image', {
+      uri: image,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+    formData.append('product name', product_name);
+    formData.append('product price', product_price);
+    formData.append('product category', product_category);
+    if (product_name.length > 0) {
+      setProductName('');
+    }
+    if (image.length > 0) {
+      setImage('');
+    }
+    if (product_price.length > 0) {
+      setProductPrice('');
+    }
+    if (description.length > 0) {
+      setProductDescription('');
+    }
+    if (product_category.length > 0) {
+      setProductCategory('');
+    }
 
+    formData.append('jwt', await AsyncStorage.getItem('AccessToken'));
     fetch('https://hiousapp.com/api/vendor_auth/create_product.php', {
       method: 'POST',
-      body: JSON.stringify(item),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      body: formData,
     })
-      .then(result => {
-        let statusCode = result.status,
-          success = result.ok;
-        result.json().then(result => {
-          if (!success) {
-            console.log(result.message);
-            Alert.alert('Warning', result.message);
-            return;
-          } else {
-            console.log(result.message);
-          }
-        });
+      .then(response => response.json())
+      .then(imagedata => {
+        setImage(imagedata.image);
+        console.log(imagedata);
+        Alert.alert('Success', imagedata.message);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
       });
   }
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null}>
       <ScrollView
@@ -165,105 +139,6 @@ export function AddProduct({route, navigation}) {
           paddingHorizontal: 30,
           paddingVertical: 20,
         }}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <TouchableOpacity
-                style={{
-                  justifyContent: 'center',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  padding: 20,
-                }}
-                onPress={choosePhotoFromLibrary}>
-                <ImageBackground
-                  source={{
-                    uri: product_pic,
-                  }}
-                  style={{
-                    height: 100,
-                    width: 100,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    borderRadius: 15,
-                  }}
-                  imageStyle={{
-                    borderRadius: 15,
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon
-                      name="camera"
-                      size={35}
-                      color="#fff"
-                      style={{
-                        opacity: 0.7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 1,
-                        borderColor: '#fff',
-                        borderRadius: 10,
-                      }}
-                    />
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TextInput
-                style={{
-                  backgroundColor: '#727FBE',
-                  padding: 10,
-                  borderRadius: 6,
-                  color: '#fff',
-                  fontSize: 16,
-                  width: 260,
-                  marginBottom: 20,
-                }}
-                placeholder={'Image'}
-                placeholderTextColor={'#f7f7f7'}
-                value={product_pic}
-                onChangeText={text => setProductPic(text)}
-              />
-              <View style={styles.close}>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(!modalVisible)}>
-                  <Text
-                    style={{color: '#B4BDE4', fontSize: 16, fontWeight: '400'}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                    Alert.alert('Success', 'Image added successfully');
-                    updateVendorPic1();
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontWeight: '500',
-                      marginLeft: 20,
-                    }}>
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
         <View
           style={{
             paddingHorizontal: 0,
@@ -294,22 +169,51 @@ export function AddProduct({route, navigation}) {
           }}>
           Add New Product
         </Text>
-        <TouchableOpacity onPress={showModal}>
+        <View style={{alignItems: 'center', display: 'flex'}}>
           <ImageBackground
+            source={{uri: image}}
+            defaultSource={require('../assets/placeholder.jpg')}
             style={{
-              width: windowWidth - 60,
-              height: 250,
-              borderRadius: 20,
+              width: 330,
+              height: 200,
               borderWidth: 1,
-              borderColor: '#c4c4c4',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderColor: '#5c5c5c',
+              margin: 0,
+              borderRadius: 10,
             }}
-            imageStyle={{borderRadius: 20}}
-            source={{uri: product_pic}}>
-            <Text style={{color: '#c4c4c4'}}>Click to add Image</Text>
+            imageStyle={{
+              width: 330,
+              height: 200,
+              borderWidth: 1,
+              borderColor: '#5c5c5c',
+              margin: 0,
+              borderRadius: 10,
+            }}
+            resizeMode={'cover'}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                position: 'absolute',
+                bottom: 10,
+                right: 0,
+                paddingHorizontal: 10,
+              }}>
+              <TouchableOpacity
+                onPress={openPicker}
+                style={{
+                  marginRight: 10,
+                  backgroundColor: '#7A86C0',
+                  padding: 10,
+                  borderRadius: 10,
+                }}>
+                <Icon name="pencil-outline" size={30} color={'#fff'} />
+              </TouchableOpacity>
+            </View>
           </ImageBackground>
-        </TouchableOpacity>
+        </View>
         <View style={styles.infoContainer}>
           <Text style={{color: '#676767', fontSize: 14, fontWeight: '400'}}>
             item name*
@@ -372,8 +276,9 @@ export function AddProduct({route, navigation}) {
             style={styles.name}
             placeholder={'Enter product description here'}
             placeholderTextColor={'#676767'}
-            value={product.description}
+            value={description}
             multiline={true}
+            onChangeText={text => setProductDescription(text)}
           />
           <TouchableOpacity style={styles.btnPrimary} onPress={createProduct}>
             <Text style={styles.reg}>Add new product</Text>

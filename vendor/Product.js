@@ -2,10 +2,39 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/rules-of-hooks */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, Image, View, StyleSheet, TouchableOpacity} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function Product({name, price, image, onPress}) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  async function getData() {
+    const jwt = await AsyncStorage.getItem('AccessToken');
+    let item = {jwt};
+    console.warn(item);
+
+    return fetch(
+      'https://hiousapp.com/api/vendor_auth/fetch_vendor_profile.php',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(item),
+      },
+    )
+      .then(response => response.json())
+      .then(json => setData(json))
+      .catch(error => console.error(error))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image style={styles.thumb} source={image} />

@@ -58,193 +58,213 @@ const MainPageVendor = ({navigation, uri}) => {
     getData();
   }, []);
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          size="default"
-          color="#3E90FC"
-        />
-      }>
-      <View style={styles.user}>
-        <TouchableOpacity
-          style={styles.userdetails}
-          onPress={() => navigation.openDrawer()}>
-          <Image
-            source={uri ? {uri} : require('../assets/vendor-user.png')}
-            style={{width: 40, height: 40, borderRadius: 20}}
+    <View>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            enabled={true}
+            size="default"
+            color="#3E90FC"
           />
-          {loading ? (
-            <Text
-              style={{
-                fontSize: 16,
-                paddingLeft: 10,
-                fontWeight: '400',
-                color: '#5C5C5C',
-              }}>
-              Loading
-            </Text>
-          ) : (
-            <Text
-              style={{
-                fontSize: 16,
-                paddingLeft: 10,
-                fontWeight: '400',
-                color: '#5C5C5C',
-                textTransform: 'capitalize',
-              }}>
-              Hello, {data.name}
-            </Text>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('NotificationsVendor')}>
-          <Image
-            source={require('../assets/notify.png')}
-            style={{width: 30, height: 30}}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={{paddingVertical: 20}}>
-        <Text
-          style={{
-            color: '#7A86C0',
-            fontSize: 24,
-            lineHeight: 36,
-            fontWeight: '700',
-          }}>
-          Dashboard
-        </Text>
-        <View style={{marginTop: 20, borderRadius: 25}}>
-          <ImageBackground
-            source={require('../assets/chart.png')}
-            style={{
-              borderRadius: 25,
-            }}
-            resizeMode={'contain'}>
-            <View style={{paddingVertical: 100}}></View>
-          </ImageBackground>
-        </View>
-        <View>
-          <View
-            style={{
-              backgroundColor: '#F9F9F9',
-              display: 'flex',
-              flexDirection: 'row',
-              padding: 20,
-              borderRadius: 10,
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 20,
-            }}>
-            <View>
-              <Text style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
-                Total Sales
+        }>
+        <View style={styles.user}>
+          <TouchableOpacity
+            style={styles.userdetails}
+            onPress={() => navigation.openDrawer()}>
+            <Image
+              source={uri ? {uri} : require('../assets/vendor-user.png')}
+              style={{width: 40, height: 40, borderRadius: 20}}
+            />
+            {loading ? (
+              <Text
+                style={{
+                  fontSize: 16,
+                  paddingLeft: 10,
+                  fontWeight: '400',
+                  color: '#5C5C5C',
+                }}>
+                Loading
               </Text>
-              {loading ? (
+            ) : (
+              <Text
+                style={{
+                  fontSize: 16,
+                  paddingLeft: 10,
+                  fontWeight: '400',
+                  color: '#5C5C5C',
+                  textTransform: 'capitalize',
+                }}>
+                Hello, {data.name}
+              </Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('NotificationsVendor')}>
+            <Image
+              source={require('../assets/notify.png')}
+              style={{width: 30, height: 30}}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={{paddingVertical: 20}}>
+          <Text
+            style={{
+              color: '#7A86C0',
+              fontSize: 24,
+              lineHeight: 36,
+              fontWeight: '700',
+            }}>
+            Dashboard
+          </Text>
+          <View style={{marginTop: 20, borderRadius: 25}}>
+            <ImageBackground
+              source={require('../assets/chart.png')}
+              style={{
+                borderRadius: 25,
+              }}
+              resizeMode={'contain'}>
+              <View style={{paddingVertical: 100}}></View>
+            </ImageBackground>
+          </View>
+          <View>
+            <View
+              style={{
+                backgroundColor: '#F9F9F9',
+                display: 'flex',
+                flexDirection: 'row',
+                padding: 20,
+                borderRadius: 10,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 20,
+              }}>
+              <View>
                 <Text
-                  style={{
-                    color: '#c4c4c4',
-                    fontSize: 30,
-                    fontWeight: '700',
-                  }}>
-                  Loading
+                  style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
+                  Total Sales
                 </Text>
-              ) : (
+                {loading ? (
+                  <Text
+                    style={{
+                      color: '#c4c4c4',
+                      fontSize: 30,
+                      fontWeight: '700',
+                    }}>
+                    Loading
+                  </Text>
+                ) : (
+                  <Text
+                    style={{color: '#c4c4c4', fontSize: 30, fontWeight: '700'}}>
+                    {data.wallet}
+                  </Text>
+                )}
+              </View>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#f9f9f9',
+                  borderRadius: 6,
+                }}>
+                <Image
+                  source={require('../assets/naira.png')}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderWidth: 1,
+                    borderColor: '#f9f9f9',
+                    borderRadius: 6,
+                    padding: 10,
+                  }}
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                backgroundColor: '#F9F9F9',
+                display: 'flex',
+                flexDirection: 'row',
+                padding: 20,
+                borderRadius: 10,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 20,
+              }}>
+              <View>
+                <Text
+                  style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
+                  Total Users
+                </Text>
                 <Text
                   style={{color: '#c4c4c4', fontSize: 30, fontWeight: '700'}}>
-                  {data.wallet}
+                  255
                 </Text>
-              )}
-            </View>
-            <View
-              style={{borderWidth: 1, borderColor: '#f9f9f9', borderRadius: 6}}>
-              <Image
-                source={require('../assets/naira.png')}
+              </View>
+              <View
                 style={{
-                  width: 30,
-                  height: 30,
                   borderWidth: 1,
                   borderColor: '#f9f9f9',
                   borderRadius: 6,
-                  padding: 10,
-                }}
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              backgroundColor: '#F9F9F9',
-              display: 'flex',
-              flexDirection: 'row',
-              padding: 20,
-              borderRadius: 10,
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 20,
-            }}>
-            <View>
-              <Text style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
-                Total Users
-              </Text>
-              <Text style={{color: '#c4c4c4', fontSize: 30, fontWeight: '700'}}>
-                255
-              </Text>
+                }}>
+                <Image
+                  source={require('../assets/total-users.png')}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderWidth: 1,
+                    borderColor: '#f9f9f9',
+                    borderRadius: 6,
+                    padding: 10,
+                  }}
+                />
+              </View>
             </View>
             <View
-              style={{borderWidth: 1, borderColor: '#f9f9f9', borderRadius: 6}}>
-              <Image
-                source={require('../assets/total-users.png')}
+              style={{
+                backgroundColor: '#F9F9F9',
+                display: 'flex',
+                flexDirection: 'row',
+                padding: 20,
+                borderRadius: 10,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 20,
+              }}>
+              <View>
+                <Text
+                  style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
+                  New Users
+                </Text>
+                <Text
+                  style={{color: '#c4c4c4', fontSize: 30, fontWeight: '700'}}>
+                  14
+                </Text>
+              </View>
+              <View
                 style={{
-                  width: 30,
-                  height: 30,
                   borderWidth: 1,
                   borderColor: '#f9f9f9',
                   borderRadius: 6,
-                  padding: 10,
-                }}
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              backgroundColor: '#F9F9F9',
-              display: 'flex',
-              flexDirection: 'row',
-              padding: 20,
-              borderRadius: 10,
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 20,
-            }}>
-            <View>
-              <Text style={{color: '#7A86C0', fontSize: 16, fontWeight: '500'}}>
-                New Users
-              </Text>
-              <Text style={{color: '#c4c4c4', fontSize: 30, fontWeight: '700'}}>
-                14
-              </Text>
-            </View>
-            <View
-              style={{borderWidth: 1, borderColor: '#f9f9f9', borderRadius: 6}}>
-              <Image
-                source={require('../assets/New-users.png')}
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderWidth: 1,
-                  borderColor: '#f9f9f9',
-                  borderRadius: 6,
-                  padding: 10,
-                }}
-              />
+                }}>
+                <Image
+                  source={require('../assets/New-users.png')}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderWidth: 1,
+                    borderColor: '#f9f9f9',
+                    borderRadius: 6,
+                    padding: 10,
+                  }}
+                />
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 

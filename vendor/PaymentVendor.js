@@ -443,11 +443,12 @@ const PaymentVendor = ({navigation}) => {
     setTimeout(() => {
       setLoadingTwo(false);
     }, 2000);
+    const selectedBanks = bank.map(({code, value}) => ({code, value}));
     const jwt = await AsyncStorage.getItem('AccessToken');
-    let item = {account_number, bank_name, bank_code, jwt};
+    let item = {account_number, bank_code, bank_name, jwt};
     console.warn(item);
 
-    fetch('https://hiousapp.com/api/vendor_auth/update_vendor.php', {
+    fetch('https://hiousapp.com/api/vendor_auth/update_vendor_account.php', {
       method: 'PUT',
       body: JSON.stringify(item),
       headers: {
@@ -465,6 +466,8 @@ const PaymentVendor = ({navigation}) => {
             return;
           } else {
             console.log(result.message);
+            Alert.alert('Success', result.message);
+            navigation.navigate('HomeVendor');
           }
         });
       })
@@ -716,8 +719,8 @@ const PaymentVendor = ({navigation}) => {
                   data={bank}
                   save="code"
                   setSelected={(value, code) => {
-                    setBankCode(code);
                     setBank(value);
+                    setBankCode(code);
                   }}
                   inputStyles={{color: '#B4BDE4'}}
                   boxStyles={{
@@ -751,6 +754,32 @@ const PaymentVendor = ({navigation}) => {
                   keyboardType={'numeric'}
                   value={account_number}
                   onChangeText={text => setAccount(text)}
+                />
+
+                <Text
+                  style={{
+                    color: '#FFFFFF',
+                    fontSize: 18,
+                    fontWeight: '500',
+                    lineHeight: 27,
+                    marginTop: 20,
+                  }}>
+                  Bank Code
+                </Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#727FBE',
+                    paddingHorizontal: 20,
+                    paddingVertical: 15,
+                    borderRadius: 10,
+                    marginTop: 10,
+                    color: '#B4BDE4',
+                  }}
+                  placeholder="Enter bank Code"
+                  placeholderTextColor={'#B4BDE4'}
+                  keyboardType={'numeric'}
+                  value={bank_code}
+                  onChangeText={text => setBankCode(text)}
                 />
 
                 <TouchableOpacity
@@ -1172,7 +1201,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingTop: 290,
+    paddingTop: 200,
   },
   modalView: {
     margin: 20,
